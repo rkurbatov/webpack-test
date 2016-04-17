@@ -71,7 +71,7 @@ let webpackConfig = {
         progress: true,
 
         // Display only errors to reduce the amount of output.
-        stats: 'errors-only',
+        //stats: 'errors-only',
 
         host: process.env.HOST || '0.0.0.0',
         port: process.env.PORT || 9000
