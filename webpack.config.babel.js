@@ -8,6 +8,7 @@ const entryPoint = './app.js';
 import Webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CleanWebpackPlugin from 'clean-webpack-plugin';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
 
 import wpLoaders from './webpack-configs/loaders';
 import uglifyJsOptions from './webpack-configs/uglify-js-options';
@@ -45,6 +46,7 @@ let webpackConfig = {
             name: 'vendor',
             filename: 'vendor-[hash].js'
         }),
+        new ExtractTextPlugin("[name]-[hash].css"),
         new Webpack.optimize.OccurrenceOrderPlugin(true),
         new Webpack.optimize.DedupePlugin(),
         new Webpack.optimize.AggressiveMergingPlugin(),
