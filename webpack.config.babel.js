@@ -36,6 +36,8 @@ let webpackConfig = {
             minify: false,
             template: './src/app/index.jade'
         }),
+        // Needed to offload HLS.js to worker (specific wp implementation) instead of main loop
+        new Webpack.NormalModuleReplacementPlugin(/^webworkify$/, 'webworkify-webpack'),
         new Webpack.optimize.CommonsChunkPlugin({
             name: 'vendor',
             filename: 'vendor-[hash].js'
@@ -43,18 +45,33 @@ let webpackConfig = {
         new Webpack.optimize.OccurrenceOrderPlugin(true),
         new Webpack.optimize.DedupePlugin(),
         new Webpack.optimize.AggressiveMergingPlugin(),
-        TARGET === 'build'
-            ? new Webpack.optimize.UglifyJsPlugin(uglifyJsOptions)
-            : _.noop,
-        new Webpack.NormalModuleReplacementPlugin(/^webworkify$/, 'webworkify-webpack')
+        TARGET === 'build' ? new Webpack.optimize.UglifyJsPlugin(uglifyJsOptions) : _.noop,
+        TARGET === 'serve' ? new Webpack.HotModuleReplacementPlugin() : _.noop
     ],
     resolve: {
         modulesDirectories: ['node_modules'],
         alias: {
             // TODO: css file should also be included
-            'angular-carousel': 'angular-carousel/dist/angular-carousel.js'            
+            'angular-carousel': 'angular-carousel/dist/angular-carousel.js'
         }
+    },
+    devServer: {
+        contentBase: 'serve',
+        // Enable history API fallback so HTML5 History API based
+        // routing works. This is a good default that will come
+        // in handy in more complicated setups.
+        historyApiFallback: true,
+        hot: true,
+        inline: true,
+        progress: true,
+
+        // Display only errors to reduce the amount of output.
+        stats: 'errors-only',
+
+        host: process.env.HOST || '0.0.0.0',
+        port: process.env.PORT || 9000
     }
+
 };
 
 export default webpackConfig;
