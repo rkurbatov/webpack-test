@@ -1,6 +1,9 @@
 'use strict';
 
 const TARGET = process.env.npm_lifecycle_event;
+const PATH = TARGET === 'serve' ? 'serve' : 'build';
+
+const entryPoint = './app.js';
 
 import Webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
@@ -20,17 +23,17 @@ let vendorDepList = _(require('./package.json').dependencies)
 let webpackConfig = {
     entry: {
         vendor: vendorDepList,
-        app: './app.js'
+        app: entryPoint
     },
     output: {
-        path: TARGET === 'serve' ? 'serve' : 'build',
+        path: PATH,
         filename: 'app-[hash].js'
     },
     module: {
         loaders: wpLoaders
     },
     plugins: [
-        new CleanWebpackPlugin('build'),
+        TARGET === 'build' ? new CleanWebpackPlugin(PATH) : _.noop,
         new HtmlWebpackPlugin({
             inject: 'head',
             minify: false,
@@ -55,6 +58,7 @@ let webpackConfig = {
             'angular-carousel': 'angular-carousel/dist/angular-carousel.js'
         }
     },
+
     devServer: {
         contentBase: 'serve',
         // Enable history API fallback so HTML5 History API based
@@ -70,7 +74,10 @@ let webpackConfig = {
 
         host: process.env.HOST || '0.0.0.0',
         port: process.env.PORT || 9000
-    }
+    },
+
+    // Sourcemaps
+    devtool: TARGET === 'serve' ? 'eval' : 'source-map'
 
 };
 

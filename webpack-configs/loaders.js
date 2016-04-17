@@ -1,6 +1,7 @@
 let wpLoaders = [
     {
-        test: /video\.js/,      // This to avoid warnings on video.js inclusion
+        // This to avoid warnings on video.js or fubo-vjs-hls.js inclusion
+        test: /(video\.js)|(fubo-vjs-hls\.js)/,
         loader: 'script'
     },
     {
@@ -14,11 +15,8 @@ let wpLoaders = [
     {
         test: /\.js$/,
         exclude: /node_modules/,
-        loader: 'babel',
-        query: {
-            presets: ['es2015'],
-            plugins: ['transform-runtime']
-        }
+        loader: 'babel!eslint'
+
     }
 ];
 

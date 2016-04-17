@@ -6,6 +6,7 @@
   "scripts": {
     "build": "webpack",
     "serve": "webpack-dev-server",
+    "lint": "eslint ./app.js ./src --ext .js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -62,6 +63,10 @@
     "babel-runtime": "^6.6.1",
     "clean-webpack-plugin": "^0.1.8",
     "css-loader": "^0.23.1",
+    "eslint": "^2.8.0",
+    "eslint-config-angular": "^0.5.0",
+    "eslint-loader": "^1.3.0",
+    "eslint-plugin-angular": "^1.0.0",
     "html-webpack-plugin": "^2.9.0",
     "jade": "^1.11.0",
     "jade-loader": "^0.8.0",
