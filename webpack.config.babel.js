@@ -3,7 +3,7 @@
 const TARGET = process.env.npm_lifecycle_event;
 const PATH = TARGET === 'serve' ? 'serve' : 'build';
 
-const entryPoint = './app.js';
+const entryPoint = './index.js';
 
 import Webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
@@ -38,7 +38,7 @@ let webpackConfig = {
         new HtmlWebpackPlugin({
             inject: 'head',
             minify: false,
-            template: './src/app/index.jade'
+            template: './app/index.jade'
         }),
         // Needed to offload HLS.js to worker (specific wp implementation) instead of main loop
         new Webpack.NormalModuleReplacementPlugin(/^webworkify$/, 'webworkify-webpack'),
@@ -71,7 +71,7 @@ let webpackConfig = {
         progress: true,
 
         // Display only errors to reduce the amount of output.
-        stats: 'errors-only',
+        //stats: 'errors-only',
 
         host: process.env.HOST || '0.0.0.0',
         port: process.env.PORT || 9000
