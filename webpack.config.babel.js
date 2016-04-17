@@ -1,8 +1,13 @@
 'use strict';
 
+const TARGET = process.env.npm_lifecycle_event;
+
 import Webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CleanWebpackPlugin from 'clean-webpack-plugin';
+
+import wpLoaders from './webpack-configs/loaders';
+import uglifyJsOptions from './webpack-configs/uglify-js-options';
 
 import _ from 'lodash';
 
@@ -12,42 +17,20 @@ let vendorDepList = _(require('./package.json').dependencies)
     .pull('font-awesome', 'include-media', 'moment-timezone')  // Should be included differently
     .value();
 
-const webpackConfig = {
+let webpackConfig = {
     entry: {
         vendor: vendorDepList,
         app: './app.js'
     },
     output: {
-        path: 'dist',
+        path: TARGET === 'serve' ? 'serve' : 'build',
         filename: 'app-[hash].js'
     },
     module: {
-        loaders: [
-            {
-                test: /video\.js/,      // This to avoid warnings on video.js inclusion
-                loader: 'script'
-            },
-            {
-                test: /\.jade$/,
-                loader: 'jade'
-            },
-            {
-                test: /\.css$/,
-                loader: 'style!css'
-            },
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: 'babel',
-                query: {
-                    presets: ['es2015'],
-                    plugins: ['transform-runtime']
-                }
-            }
-        ]
+        loaders: wpLoaders
     },
     plugins: [
-        new CleanWebpackPlugin('dist'),
+        new CleanWebpackPlugin('build'),
         new HtmlWebpackPlugin({
             inject: 'head',
             minify: false,
@@ -60,51 +43,16 @@ const webpackConfig = {
         new Webpack.optimize.OccurrenceOrderPlugin(true),
         new Webpack.optimize.DedupePlugin(),
         new Webpack.optimize.AggressiveMergingPlugin(),
-        /*new Webpack.optimize.UglifyJsPlugin({
-            minimize: true,
-            compress: {
-                warnings: false,
-                properties: true,
-                sequences: true,
-                dead_code: true,
-                conditionals: true,
-                comparisons: true,
-                evaluate: true,
-                booleans: true,
-                unused: true,
-                loops: true,
-                hoist_funs: true,
-                cascade: true,
-                if_return: true,
-                join_vars: true,
-                drop_debugger: true,
-                negate_iife: true,
-                unsafe: true,
-                hoist_vars: true
-            },
-            mangle: {
-                except: ['exports', 'require'],
-                toplevel: true,
-                sort: true,
-                eval: true,
-                properties: true
-            },
-            output: {
-                space_colon: false,
-                comments: false
-            }
-        }),*/
-        new Webpack.NormalModuleReplacementPlugin(/^webworkify$/, 'webworkify-webpack'),
-        _.noop
+        TARGET === 'build'
+            ? new Webpack.optimize.UglifyJsPlugin(uglifyJsOptions)
+            : _.noop,
+        new Webpack.NormalModuleReplacementPlugin(/^webworkify$/, 'webworkify-webpack')
     ],
     resolve: {
         modulesDirectories: ['node_modules'],
         alias: {
             // TODO: css file should also be included
-            'angular-carousel': 'angular-carousel/dist/angular-carousel.js',
-
-            // To use source instead of prebuild version and so avoid warning
-            'videojs-hls.js': 'videojs-hls.js/lib/vjs-hls.js'
+            'angular-carousel': 'angular-carousel/dist/angular-carousel.js'            
         }
     }
 };
