@@ -67,7 +67,6 @@ let webpackConfig = {
         // routing works. This is a good default that will come
         // in handy in more complicated setups.
         historyApiFallback: true,
-        hot: true,
         inline: true,
         progress: true,
 
