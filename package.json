@@ -1,15 +1,15 @@
 {
   "name": "webpack-test",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "webpack",
     "serve": "webpack-dev-server",
     "lint": "eslint ./app.js ./src --ext .js",
-    "bump-version-major": "git checkout -b 'version-bump-major' && npm version minor -m 'Bump to version %s'",
-    "bump-version-minor": "git checkout -b 'version-bump-minor' && npm version minor -m 'Bump to version %s'",
-    "bump-version-patch": "git checkout -b 'version-bump-patch' && npm version minor -m 'Bump to version %s'",
+    "bump-version-major": "git checkout -b 'version-bump-major' && npm version major --no-git-tag-version -m 'Bump to version %s'",
+    "bump-version-minor": "git checkout -b 'version-bump-minor' && npm version minor --no-git-tag-version -m 'Bump to version %s'",
+    "bump-version-patch": "git checkout -b 'version-bump-patch' && npm version patch --no-git-tag-version -m 'Bump to version %s'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
