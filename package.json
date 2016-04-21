@@ -10,7 +10,7 @@
     "bump-version-major": "git checkout -b 'version-bump-major' && npm version major --no-git-tag-version",
     "bump-version-minor": "git checkout -b 'version-bump-minor' && npm version minor --no-git-tag-version",
     "bump-version-patch": "git checkout -b 'version-bump-patch' && npm version patch --no-git-tag-version",
-    "translations-extract": "scripts/translations-extract.sh",
+    "translation": "scripts/translations-extract.sh && gulp translate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -76,6 +76,8 @@
     "eslint-plugin-angular": "~1.0.0",
     "extract-text-webpack-plugin": "~1.0.1",
     "file-loader": "~0.8.5",
+    "gulp": "^3.9.1",
+    "gulp-transifex": "^0.1.17",
     "html-webpack-plugin": "~2.9.0",
     "jade": "~1.11.0",
     "jade-loader": "~0.8.0",
