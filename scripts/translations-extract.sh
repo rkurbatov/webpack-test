@@ -5,8 +5,9 @@
 
 OUTPUT_FILE=./translations/extracted-strings.pot
 
-# gettext-extract is used for extraction from JADE (or HTML) templates
-find ./app -name '*.jade' | xargs gettext-extract --output $OUTPUT_FILE
+# gettext-extract is used for extraction from PUG (JADE) or HTML templates
+find ./app -name '*.pug' -o -name '*.jade' -o -name '*.html' | xargs gettext-extract --output $OUTPUT_FILE
 
 # default xgettext is used for JavaScript files
-find ./app -name '*.js' | xargs --no-run-if-empty xgettext -join-existing --output=$OUTPUT_FILE
+# BSD xargs doesn't have --no-run-if-empty we use 'grep .' instead
+find ./app -name '*.js' | grep . | xargs xgettext -join-existing --output=$OUTPUT_FILE
