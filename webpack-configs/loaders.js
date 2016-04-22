@@ -6,7 +6,7 @@ let wpLoaders = [
         test: /(video\.js)|(fubo-vjs-hls\.js)/, loader: 'script'
     },
     {
-        test: /\.jade$/, loader: 'jade'
+        test: /\.(pug|jade)$/, loader: 'jade'
     },
     {
         test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css?sourceMap')
