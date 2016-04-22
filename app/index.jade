@@ -3,7 +3,9 @@ html
 
     head
 
-    body
+    body(ng-app="testApp" ng-strict-di)
+        div(ng-controller='MainController as ctrl')
+            span {{ ctrl.hello }}
         span Hello, world!!
         span: i.fa.fa-phone
         p

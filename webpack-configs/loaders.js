@@ -15,8 +15,7 @@ let wpLoaders = [
         test: /\.scss$/, loader: ExtractTextPlugin.extract('style', 'css?sourceMap!sass?sourceMap')
     },
     {
-        test: /\.js$/, exclude: /node_modules/, loader: 'babel!eslint'
-
+        test: /\.js$/, exclude: /node_modules/, loader: 'ng-annotate!babel!eslint'
     },
     {
         test: /\.(png|jpg)$/, loader: 'url?limit=25000'
