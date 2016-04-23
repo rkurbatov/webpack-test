@@ -30,7 +30,10 @@ getLanguageCodes()
     })
     .then(langArray => {
         langCodes = langArray;
-        return pushTranslation();
+        if (!langArray.length) {
+            console.log(chalk.red('No translations found for current project!'));
+            process.exit(1);
+        } else return pushTranslation();
     })
     .catch(err => {
         console.log(chalk.red('Error uploading extracted strings! ErrorCode: '), chalk.yellow(err));
