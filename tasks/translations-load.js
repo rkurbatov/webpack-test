@@ -10,8 +10,7 @@ const PASSWORD = 'translate4fubo';
 const PROJECT = 'fubotv-website-v2';
 const BASE_URL = `/api/2/project/${PROJECT}`;
 
-// const EXTR_STR_FILENAME = 'fubotv-website-v2.pot';
-const EXTR_STR_FILENAME = 'extracted-strings.pot';
+const EXTR_STR_FILENAME = 'fubotv-website-v2.pot';
 const TRANSLATIONS_PATH = './translations';
 const SLUG = EXTR_STR_FILENAME.replace(/\./, '');
 
@@ -40,12 +39,17 @@ getLanguageCodes()
             process.exit(1);
         } else return Promise.all(langCodes.map(pullTranslation));
     })
-    .catch(err => {
-        console.log(`${FAIL} Error uploading extracted strings! ErrorCode: ${chalk.yellow(err)}`);
+    .catch(() => {
         process.exit(1);
     })
     .then(translations => Promise.all(writeTranslations(translations)))
-    .then(() => pushTranslation());
+    .then(() => {
+        if (process.env.NODE_ENV === 'production') return pushTranslation();
+        return Promise.resolve();
+    })
+    .catch(() => {
+        process.exit(1);
+    });
 
 // ====== IMPLEMENTATION ======
 
@@ -87,7 +91,7 @@ function writeTranslations(translations) {
         return new Promise((resolve, reject) => {
             fs.writeFile(`${TRANSLATIONS_PATH}/${langIsoCode}.po`, translations[idx], (err) => {
                 if (err) {
-                    console.log(chalk.red('✘') + 'Error getting %s translation!', chalk.cyan(langIsoCode));
+                    console.log(`${FAIL} Error getting ${chalk.cyan(langIsoCode)} translation!`);
                     return reject(err);
                 }
                 console.log(`${SUCC} Downloaded ${chalk.cyan(langIsoCode)} translation`);
@@ -101,14 +105,35 @@ function pushTranslation() {
     return new Promise((resolve, reject) => {
         let fileName = `${TRANSLATIONS_PATH}/${EXTR_STR_FILENAME}`;
 
-        fs.readFile(fileName, 'utf8', (err, data)=> {
+        fs.readFile(fileName, 'utf8', (err, data) => {
             if (err) {
                 console.log(`${FAIL} Error getting extracted strings file: ${chalk.cyan(fileName)}`);
                 return reject(err);
             }
 
-            //https.request();
-            resolve(true);
+            let dataToSend = JSON.stringify({content: data});
+
+            let req = https.request(_.merge(options, {
+                path: `${BASE_URL}/resource/${SLUG}/content/`,
+                method: 'PUT',
+                headers: {
+                    'content-type': 'application/json',
+                    'content-length': Buffer.byteLength(dataToSend)
+                }
+            }));
+
+            req.on('response', res => {
+                if (res.statusCode === '200') {
+                    console.log(`${SUCC} Successfully uploaded extracted strings.`);
+                    return resolve();
+                }
+                console.log(`${FAIL} Error uploading extracted strings! ErrorCode: ${chalk.yellow(res.statusCode)}`);
+                return reject(res.statusCode);
+            });
+
+            req.write(dataToSend);
+
+            req.end();
         });
 
     });
