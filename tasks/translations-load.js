@@ -8,10 +8,15 @@ import _ from 'lodash';
 const USER = 'schoi';
 const PASSWORD = 'translate4fubo';
 const PROJECT = 'fubotv-website-v2';
-const SLUG = 'fubotv-website-v2pot';
-// SLUG = 'extracted-stringspot';
 const BASE_URL = `/api/2/project/${PROJECT}`;
+
+// const EXTR_STR_FILENAME = 'fubotv-website-v2.pot';
+const EXTR_STR_FILENAME = 'extracted-strings.pot';
 const TRANSLATIONS_PATH = './translations';
+const SLUG = EXTR_STR_FILENAME.replace(/\./, '');
+
+const FAIL = chalk.red('✘');
+const SUCC = chalk.green('✔');
 
 const options = {
     host: 'www.transifex.com',
@@ -25,41 +30,29 @@ let langCodes;
 
 getLanguageCodes()
     .catch(err => {
-        console.log(chalk.red('Error getting language list! ErrorCode: '), chalk.yellow(err));
+        console.log(`${FAIL} Error getting language list! ErrorCode: ${chalk.yellow(err)}`);
         process.exit(1);
     })
     .then(langArray => {
         langCodes = langArray;
         if (!langArray.length) {
-            console.log(chalk.red('No translations found for current project!'));
+            console.log(`${FAIL} No translations found for current project!`);
             process.exit(1);
-        } else return pushTranslation();
+        } else return Promise.all(langCodes.map(pullTranslation));
     })
     .catch(err => {
-        console.log(chalk.red('Error uploading extracted strings! ErrorCode: '), chalk.yellow(err));
+        console.log(`${FAIL} Error uploading extracted strings! ErrorCode: ${chalk.yellow(err)}`);
         process.exit(1);
     })
-    .then(() => {
-        return Promise.all(langCodes.map(pullTranslation));
-    })
-    .then(translations => {
-        _.forEach(langCodes, (langIsoCode, idx)=> {
-            fs.writeFile(`${TRANSLATIONS_PATH}/${langIsoCode}.po`, translations[idx], (err) => {
-                if (err) {
-                    console.log(chalk.red('Error getting %s translation!'), chalk.cyan(langIsoCode));
-                    process.exit(1);
-                }
-                console.log('Downloaded %s translation', chalk.cyan(langIsoCode));
-            });
-        })
-    });
+    .then(translations => Promise.all(writeTranslations(translations)))
+    .then(() => pushTranslation());
 
 // ====== IMPLEMENTATION ======
 
 function getLanguageCodes() {
     return new Promise((resolve, reject)=> {
         https.get(
-            _.merge(options, {path: `${BASE_URL}/languages/`}),
+            _.merge(options, {path: `${BASE_URL}/languages`}),
             res => {
                 res.on('data', data => {
                     (parseInt(res.statusCode, 10) === 200)
@@ -89,8 +82,34 @@ function pullTranslation(languageCode) {
     })
 }
 
+function writeTranslations(translations) {
+    return _.map(langCodes, (langIsoCode, idx)=> {
+        return new Promise((resolve, reject) => {
+            fs.writeFile(`${TRANSLATIONS_PATH}/${langIsoCode}.po`, translations[idx], (err) => {
+                if (err) {
+                    console.log(chalk.red('✘') + 'Error getting %s translation!', chalk.cyan(langIsoCode));
+                    return reject(err);
+                }
+                console.log(`${SUCC} Downloaded ${chalk.cyan(langIsoCode)} translation`);
+                resolve(langIsoCode);
+            });
+        })
+    })
+}
+
 function pushTranslation() {
     return new Promise((resolve, reject) => {
-        resolve(true);
+        let fileName = `${TRANSLATIONS_PATH}/${EXTR_STR_FILENAME}`;
+
+        fs.readFile(fileName, 'utf8', (err, data)=> {
+            if (err) {
+                console.log(`${FAIL} Error getting extracted strings file: ${chalk.cyan(fileName)}`);
+                return reject(err);
+            }
+
+            //https.request();
+            resolve(true);
+        });
+
     });
 }
